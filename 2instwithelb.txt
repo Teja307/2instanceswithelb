@@ -1,0 +1,106 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Ec2 instance",
+
+	"Resources": {
+		"EC2Instance1": {
+			"Type": "AWS::EC2::Instance",
+			"Properties": {
+				"AvailabilityZone": "us-east-2a",
+				"ImageId": "ami-8a7859ef",
+				"InstanceType": "t2.micro",
+				"KeyName": "Mandava@1993",
+				"SubnetId": "subnet-53126d3a",
+				"UserData": {
+					"Fn::Base64": {
+						"Fn::Join": ["", [
+							"#!/bin/bash -xe\n",
+							"cd /opt\n",
+							"mkdir data\n",
+							"cd /opt/data\n",
+							"wget http://mirror.olnevhost.net/pub/apache/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.tar.gz\n",
+							"tar -zxvf apache-tomcat-7.0.79.tar.gz\n",
+							"cd /opt/data/apache-tomcat-7.0.79/bin\n",
+							"./startup.sh"
+						]]
+					}
+				}
+			}
+		},
+
+		"EC2Instance2": {
+			"Type": "AWS::EC2::Instance",
+			"Properties": {
+				"AvailabilityZone": "us-east-2a",
+				"ImageId": "ami-8a7859ef",
+				"InstanceType": "t2.micro",
+				"KeyName": "Mandava@1993",
+				"SubnetId": "subnet-53126d3a",
+				"UserData": {
+					"Fn::Base64": {
+						"Fn::Join": ["", [
+							"#!/bin/bash -xe\n",
+							"cd /opt\n",
+							"mkdir data\n",
+							"cd /opt/data\n",
+							"wget http://mirror.olnevhost.net/pub/apache/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.tar.gz\n",
+							"tar -zxvf apache-tomcat-7.0.79.tar.gz\n",
+							"cd /opt/data/apache-tomcat-7.0.79/bin\n",
+							"./startup.sh"
+						]]
+					}
+				}
+			}
+		},
+
+
+		"MyLoadBalancer": {
+
+			"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+
+			"Properties": {
+
+				"AvailabilityZones": ["us-east-2a", "us-east-2b", "us-east-2c"],
+
+				"Instances": [
+
+					{
+						"Ref": "EC2Instance1"
+					},
+
+					{
+						"Ref": "EC2Instance2"
+					}
+
+				],
+
+				"Listeners": [{
+
+					"LoadBalancerPort": "8080",
+
+					"InstancePort": "8080",
+
+					"Protocol": "HTTP"
+
+				}],
+
+				"HealthCheck": {
+
+					"Target": "TCP:8080",
+
+					"HealthyThreshold": "3",
+
+					"UnhealthyThreshold": "5",
+
+					"Interval": "30",
+
+					"Timeout": "5"
+
+				}
+
+			}
+
+		}
+
+	}
+}
